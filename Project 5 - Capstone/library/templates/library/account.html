@@ -1,0 +1,187 @@
+{% extends "library/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+    <div class="container">
+
+        <div id="pagination">
+            <ul class="pagination">
+                <li class="page-item" id="borrowing-btn">
+                    <a class="page-link" style="box-shadow: none;" href="#">Borrowing</a>
+                </li>
+                <li class="page-item" id="reservation-btn">
+                    <a class="page-link" style="box-shadow: none;" href="#">Reservation</a>
+                </li>
+                <li class="page-item" id="payment-btn">
+                    <a class="page-link" style="box-shadow: none;" href="#">Payment</a>
+                </li>
+            </ul>
+        </div>
+
+        <div id="borrowing" style="display: none">
+            {% for borrowing in borrowings %}
+                <div class="card" style="margin-bottom: 10px;">
+                    <div class="card-header" style="font-weight: 600;">
+                        <div class="row">
+                            <div class="col-8 col-sm-9 col-md-9">
+                                BORROWED (due date: {{ borrowing.duedate|date:"SHORT_DATE_FORMAT" }})
+                            </div>
+                            <div style="padding-left: 15px;">
+                                {% if borrowing in payments %}
+                                    <i>You have unpaid fines!</i>
+                                {% else %}
+                                    <a href="{% url 'retturn' borrowing.book.id %}" class="btn btn-info btn-sm btn-option" style="margin-left: 0">Return this book</a>
+                                {% endif %}
+                            </div>
+                        </div>                        
+                    </div>
+                    <div class="card-body" style="padding-top: 15px; font-size: 14px;">
+                        <div class="row">
+                            <div style="width: 175px; max-width: 175x; padding-left: 15px; margin-top: 5px;">
+                                <img src="{{ borrowing.book.image }}" style="width: 150px">
+                            </div>
+                            <div class="col-7 col-sm-7 col-md-9" style="padding-top: 3px;">
+                                <h5 style="font-size: 18px;"><a href="{% url 'book' borrowing.book.id %}">{{ borrowing.book.title }}</a></h5>
+                                <span style="font-weight: 600">Category: </span>{{ borrowing.book.category }}<br>
+                                <span style="font-weight: 600">Authors: </span>{{ borrowing.book.authors }}<br><br>
+                                <span style="font-weight: 600">Description: </span><br>
+                                <div class="text" style="margin-top: 5px;">
+                                    {{ borrowing.book.description }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <i>You have not borrowed any books.</i>
+            {% endfor %}
+        </div>
+
+        <div id="reservation" style="display: none">
+            {% for reservation in reservations %}
+            <div class="card" style="margin-bottom: 10px;">
+                <div class="card-header" style="font-weight: 600;">
+                    <div class="row">
+                        <div class="col-9 col-sm-8 col-md-9">
+                            {% if reservation.duedate %}
+                                RESERVED (due date: {{ reservation.duedate|date:"SHORT_DATE_FORMAT" }})
+                            {% else %}
+                                RESERVED (due date: <i>not available yet</i>)
+                            {% endif %}
+                        </div>
+                        <div class="col-1 col-sm-1 col-md-1">
+                            {% if reservation.duedate %}
+                                <a href="{% url 'borrow' reservation.book.id %}" class="btn btn-info btn-sm btn-option">Borrow</a>
+                            {% endif %}
+                        </div>
+                        <div style="padding-left: 5px;">
+                            <a href="{% url 'cancel' reservation.book.id %}" class="btn btn-info btn-sm btn-option">Cancel reservation</a>
+                        </div>
+                    </div>                        
+                </div>
+                <div class="card-body" style="padding-top: 15px; font-size: 14px;">
+                    <div class="row">
+                        <div style="width: 175px; max-width: 175x; padding-left: 15px; margin-top: 5px;">
+                            <img src="{{ reservation.book.image }}" style="width: 150px">
+                        </div>
+                        <div class="col-7 col-sm-7 col-md-9" style="padding-top: 3px;">
+                            <h5 style="font-size: 18px;"><a href="{% url 'book' reservation.book.id %}">{{ reservation.book.title }}</a></h5>
+                            <span style="font-weight: 600">Category: </span>{{ reservation.book.category }}<br>
+                            <span style="font-weight: 600">Authors: </span>{{ reservation.book.authors }}<br><br>
+                            <span style="font-weight: 600">Description: </span><br>
+                            <div class="text" style="margin-top: 5px;">
+                                {{ reservation.book.description }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+                <i>You have no reservations.</i>
+            {% endfor %}
+        </div>
+
+        <form method="POST" action="{% url 'pay' %}">
+            {% csrf_token %}
+            <div id="payment" style="display: none; margin-bottom: 15px;" data-exist="{{ payments }}">
+                {% for payment in payments %}
+                    <div class="card" style="margin-bottom: 10px;">
+                        <div class="card-header" style="font-weight: 600;">
+                            <div class="row">
+                                <div class="col-9 col-sm-10 col-md-10">
+                                    <input name="checkbox" id="checkbox" type="checkbox" value="{{ payment.id }}" data-amount="{{ payment.fine }}">
+                                </div>
+                                <div style="padding-left: 20px;">
+                                    Fine: ${{ payment.fine }}
+                                </div>
+                            </div>                        
+                        </div>
+                        <div class="card-body" style="padding-top: 15px; font-size: 14px;">
+                            <div class="row">
+                                <div style="width: 175px; max-width: 175x; padding-left: 15px; margin-top: 5px;">
+                                    <img src="{{ payment.book.image }}" style="width: 150px">
+                                </div>
+                                <div class="col-7 col-sm-7 col-md-9" style="padding-top: 3px;">
+                                    <h5 style="font-size: 18px;"><a href="{% url 'book' payment.book.id %}">{{ payment.book.title }}</a></h5>
+                                    <span style="font-weight: 600">Category: </span>{{ payment.book.category }}<br>
+                                    <span style="font-weight: 600">Authors: </span>{{ payment.book.authors }}<br><br>
+                                    <span style="font-weight: 600">Description: </span><br>
+                                    <div class="text" style="margin-top: 5px;">
+                                        {{ payment.book.description }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <i>You have no outstanding fines.</i>
+                {% endfor %}
+                
+                {% if payments %}
+                    <div style="margin-top: 20px;">
+                        <button type="button" class="btn btn-info btn-sm" id="btn-calculate">Calculate</button>
+                        <span id="value" style="width: 1px">Total: $0.00</span>
+                        <button type="button" class="btn btn-primary btn-sm" id="btn-checkout" data-toggle="modal" data-target="#exampleModal" disabled>Checkout</button>
+                    </div>
+                    
+                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document" style="align-items: center;">
+                            <div class="modal-content">
+                                <div class="modal-header" style="height: 60px">
+                                <h5 class="modal-title" id="exampleModalLabel">Payment Invoice</h5>
+                                <button type="button" class="close" style="outline: none;" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                </div>
+                                <div class="modal-body" style="padding-top: 10px">
+                                    <span class="small-title">Payment amount</span><br>
+                                    <span id="amount"></span><br>
+                                    <label class="small-title">Name on card</label><br>
+                                    <input class="form-control" name="card-name" type="text">
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <label class="small-title">Card number</label><br>
+                                            <input class="form-control" name="card-number" type="text" maxlength="16">
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="small-title">CVV</label><br>
+                                            <input class="form-control"type="text" maxlength="3">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <script src="{% static 'library/account.js' %}">
+    </script>
+    
+{% endblock %}

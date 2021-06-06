@@ -1,0 +1,44 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container">
+        <h2>Watchlist Listings</h2>
+    </div>
+    {% for listing, max_price in watchlists %}
+        <div class="card mb-3" style="max-width: 97%; height: 180px; margin-left: 15px;">
+            <div class="row no-gutters">
+                <div class="col-md-3" style="height:180px; display: flex; align-items: center;">
+                    {% if listing.item.image_url %}
+                        <img class="card-img-top" src="{{ listing.item.image_url }}" alt="No image available">
+                    {% else %}
+                        <img class="card-img-top" src="{% static 'auctions/no_image.jpg' %}">
+                    {% endif %}
+                </div>
+                <div class="col-md-9" style="height:180px;">
+                    <div class="container-item">
+                        <a href="{% url 'listing' listing.item.id %}"><strong>{{ listing.item.name }}</strong></a><br>
+                        <strong style="color: #555555;">Price: ${{ max_price|floatformat:2 }}</strong><br>
+                        <p id="description" style="width: 100%"><small>{{ listing.item.description }}</small></p>
+                    </div>
+                    <div class="card-footer" id="footer">
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <small class="text-muted">Created at {{ listing.item.created_date }}</small>
+                            </div>
+                            <div class="col-sm">
+                                <a href="{% url 'remove_watchlist' listing.item.id %}">
+                                    <span class="badge badge-pill badge-danger" style="font-weight: normal">
+                                        <span class="fw-normal"><i>Remove from watchlist</i></span>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-6"><i>No active listing watched.</i></div>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,23 @@
+textarea {
+    min-height: 400px;
+    white-space: pre-wrap;
+}
+
+.card-modified {
+    padding: 1px;
+    border-color: #aaa;
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+
+.card-body-modified {
+    padding: 1rem;
+    border-radius: 3px;
+    border: none;
+    text-align: left;
+}
+
+.btn-modified {
+    padding-left: 15px;
+    padding-right: 15px;
+}

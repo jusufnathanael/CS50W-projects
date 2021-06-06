@@ -1,0 +1,91 @@
+{% extends "library/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+    <div class="container" id="container" data-bookid="{{ book.id }}">
+        <h4>{{ book.title }}</h4>
+        <div class="row" style="margin-top: 20px; font-size: 15px; line-height: 25px;">
+            <div class="col-3 col-sm-3 col-md-3" style="width: 230px; max-width: 230px; margin-top: 5px;">
+                <img src="{{ book.image }}" style="width: 200px;"><br><br>
+            </div>
+            <div style="margin-left: 15px">
+                <span style="font-weight: 500">ISBN: </span>{{ book.isbn }}<br>
+                <span style="font-weight: 500">Category: </span>{{ book.category }}<br>
+                <span style="font-weight: 500">Authors: </span>{{ book.authors }}<br>
+                <span style="font-weight: 500">Page Count: </span>{{ book.page_count }}<br>
+                <span style="font-weight: 500">Published Date: </span>{{ book.published_date|date:"SHORT_DATE_FORMAT"}}<br>
+                <span style="font-weight: 500">Rating: </span>{% if book.rating %}{{ book.rating }}/5.0{% else %}---{% endif %}<br><br>
+                {% if book.status == "AVAILABLE" %}
+                    <span style="font-weight: 500">Status: </span>{{ book.status }}<br>
+                    {% if has_reached_maximum or has_unpaid_fines %}
+                        <a class="btn btn-outline-secondary btn-sm btn-book btn-disabled" href="{% url 'borrow' book.id %}" disabled>BORROW</a>
+                    {% else %}
+                        <a class="btn btn-outline-primary btn-sm btn-book" href="{% url 'borrow' book.id %}">BORROW</a>
+                    {% endif %}
+                {% elif book.status == "BORROWED" %}
+                    {% if person_eq_user %}
+                        <i>You have borrowed this book.</i><br>
+                        Deadline: {{ due_date|date:"SHORT_DATE_FORMAT" }}
+                    {% else %}
+                        <span style="font-weight: 500">Status: </span>{{ book.status }}<br>
+                        {% if has_unpaid_fines %}
+                            <a class="btn btn-outline-primary btn-sm btn-book btn-disabled" href="{% url 'reserve' book.id %}" disabled>RESERVE</a>
+                        {% else %}
+                            <a class="btn btn-outline-primary btn-sm btn-book" href="{% url 'reserve' book.id %}">RESERVE</a>
+                        {% endif %}
+                    {% endif %}
+                {% elif book.status == "RESERVED" %}
+                    {% if person_eq_user %}
+                        <i>You have reserved this book.</i><br>
+                        {% if due_date %}
+                            Deadline: {{ due_date|date:"SHORT_DATE_FORMAT" }}
+                        {% endif %}
+                    {% else %}
+                        <span style="font-weight: 500">Status: </span>{{ book.status }}<br>
+                    {% endif %}
+                {% else %}
+                    <span style="font-weight: 500">Status: </span>{{ book.status }}<br>
+                {% endif %}
+            </div>
+        </div>
+        <div style="font-size: 15px; line-height: 25px;">
+            <span style="font-weight: 500">Description:</span><br>
+            {{ book.description }}
+        </div>
+        <div style="margin-top: 30px;">
+            <h4>Reviews</h4>
+            {% if not my_rating %}
+                <form id="new" style="margin-top: 15px;">
+                    {% csrf_token %}
+                    Create a Review
+                    <div id="star" data-star="{{ my_rating }}" style="margin-top: 2px; margin-bottom: 10px;">
+                        <button class="btn-star" style="outline: none;" type="button" id="star1" data-star="1"><img src="/static/library/white-star.jpg" width=20px></button>
+                        <button class="btn-star" style="outline: none;" type="button" id="star2" data-star="2"><img src="/static/library/white-star.jpg" width=20px></button>
+                        <button class="btn-star" style="outline: none;" type="button" id="star3" data-star="3"><img src="/static/library/white-star.jpg" width=20px></button>
+                        <button class="btn-star" style="outline: none;" type="button" id="star4" data-star="4"><img src="/static/library/white-star.jpg" width=20px></button>
+                        <button class="btn-star" style="outline: none;" type="button" id="star5" data-star="5"><img src="/static/library/white-star.jpg" width=20px></button>
+                    </div>
+                    <textarea class="form-control" style="width:100%; height: 100px;" placeholder="Write your reviews here..."></textarea><br>
+                    <button class="btn btn-info btn-sm" style="width: 60px; margin-top: -20px" type="submit">Post</button>
+                </form>
+            {% endif %}
+            {% for review in reviews %}
+                <div class="card" style="margin-bottom: 10px;">
+                    <div class="card-body">
+                        <strong>{{ review.user.username }}</strong>
+                        <i> reviewed on {{ review.timestamp|date:"D, d M Y f A" }}</i><br>
+                        {% for i in "x"|ljust:review.rate %}
+                            <img src="/static/library/yellow-star.jpg" style="margin-left: -5px;" width=20px>
+                        {% endfor %}<br>
+                        {{ review.details }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{% static 'library/book.js' %}">        
+    </script>
+
+{% endblock %}

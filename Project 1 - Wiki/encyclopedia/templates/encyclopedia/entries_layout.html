@@ -1,0 +1,12 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    {{ name }}
+{% endblock %}
+
+{% block edit %}
+    <a class="btn btn-outline-primary btn-sm" href="/wiki/{{name}}/edit" style="margin-top: 5px;">Edit</a>
+{% endblock %}
+
+{% block body %}
+{% endblock %}

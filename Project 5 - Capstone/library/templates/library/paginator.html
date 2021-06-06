@@ -1,0 +1,39 @@
+<nav aria-label="pagination">
+    <form id="paginator" data-action="{{ action }}" method="GET">
+        <ul class="pagination">
+            {% if current_page == 1 %}
+                <li class="page-item disabled">
+                    <button class="page-link" name="page" style="box-shadow: none;" aria-disabled="true">Previous</button>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <button class="page-link" name="page" style="box-shadow: none;" value="{{ current_page|add:'-1' }}">Previous</button>
+                </li>
+            {% endif %}
+            {% for i in num_pages %}
+                {% if forloop.counter == current_page %}
+                    <li class="page-item active" aria-current="page">
+                        <button class="page-link" style="box-shadow: none;" name="page" value="{{ forloop.counter }}">
+                            {{ forloop.counter }}
+                        </button>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <button class="page-link" style="box-shadow: none;" name="page" value="{{ forloop.counter }}">
+                            {{ forloop.counter }}
+                        </button>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            {% if current_page == num_pages|last|add:1 %}
+                <li class="page-item disabled">
+                    <button class="page-link" name="page" style="box-shadow: none;" aria-disabled="true">Next</button>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <button class="page-link" name="page" style="box-shadow: none;" value="{{ current_page|add:1 }}">Next</button>
+                </li>
+            {% endif %}
+        </ul>
+    </form>
+</nav>

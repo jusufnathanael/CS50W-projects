@@ -1,0 +1,31 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container">
+        <h2>Active Listings</h2>
+    </div>
+    {% for listing, max_price in listings %}
+        <div class="card mb-3" style="max-width: 97%; height: 180px; margin-left: 15px;">
+            <div class="row no-gutters">
+                <div class="col-md-3" style="height:180px; display: flex; align-items: center;">
+                    {% if listing.image_url %}
+                        <img class="card-img-top" src="{{ listing.image_url }}" style="max-height: 180px;" alt="No image available">
+                    {% else %}
+                        <img class="card-img-top" src="{% static 'auctions/no_image.jpg' %}">
+                    {% endif %}
+                </div>
+                <div class="col-md-9" style="height:180px;">
+                    <div class="container-item">
+                        <a href="{% url 'listing' listing.id %}"><strong>{{ listing.name }}</strong></a><br>
+                        <strong style="color: #555555;">Price: ${{ max_price|floatformat:2 }}</strong><br>
+                        <p id="description" style="width: 100%"><small>{{ listing.description }}</small></p>
+                    </div>
+                    <div class="card-footer" id="footer"><small class="text-muted">Created at {{ listing.created_date }}</small></div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-6"><i>No active listing available.</i></div>
+    {% endfor %}
+{% endblock %}

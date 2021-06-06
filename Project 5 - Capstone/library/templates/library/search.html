@@ -1,0 +1,44 @@
+Search
+<form method="GET" action="{% url 'index' %}">
+    <input class="form-control form-search" name="qt" style="box-shadow:none;" type="text" value="{{ title }}" placeholder="Book Title">
+    <a id="link-advanced" data-view="{{ search }}"></a><br>
+    <div id="advanced" data-view="{{ search }}" style="margin-top: 5px">
+        <span style="font-size: 12px; font-weight: 500">Category</span>
+        <select class="form-control form-search" name="qc" style="box-shadow:none;">
+            <option class="form-control form-search" value="">----------</option>
+            {% for category in allcategories %}
+                {% if category.name == qcategory %}
+                    <option class="form-control form-search" selected>{{ category }}</option>
+                {% else %}
+                    <option class="form-control form-search">{{ category }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <span style="font-size: 12px; font-weight: 500">Year of Publication</span><br>
+        <input class="form-control form-search" name="qy" type="number" min=1960 max="{% now 'Y' %}" value="{{ year }}" placeholder="Year" style="box-shadow:none;">
+        <span style="font-size: 12px; font-weight: 500">Author</span>
+        <input class="form-control form-search" name="qa" type="text" style="box-shadow:none;" value="{{ author }}" placeholder="Name">
+    </div>
+    <button class="btn btn-info btn-sm" style="margin-top: 10px;" type="submit">Submit</button>
+</form>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let filter = document.querySelector('#advanced');
+        if (filter.dataset.view == 'True') {
+            filter.style.display = 'block';
+            document.querySelector('#link-advanced').innerHTML = 'Hide advanced filter';
+        } else {
+            filter.style.display = 'none';
+            document.querySelector('#link-advanced').innerHTML = 'Show advanced filter';
+        }
+        document.querySelector('#link-advanced').addEventListener('click', () => {
+            if (filter.style.display === 'none') {
+                filter.style.display = 'block';
+                document.querySelector('#link-advanced').innerHTML = 'Hide advanced filter';
+            } else if (filter.style.display === 'block') {
+                filter.style.display = 'none';
+                document.querySelector('#link-advanced').innerHTML = 'Show advanced filter';
+            }
+        })
+    })
+</script>

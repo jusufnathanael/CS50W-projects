@@ -1,0 +1,67 @@
+{% extends "library/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+    <div class="container">
+        <div id="search">
+        </div>
+
+        <div id="pagination">
+            {% include "library/paginator.html" %}
+        </div>
+
+        <div id="books">
+            {% for book in books %}
+                <div class="card" style="margin-bottom: 10px;">
+                    <div class="card-header" style="font-weight: 600;">
+                        <div class="row">
+                            <div class="col-6 col-sm-7 col-md-9">
+                                <a href="{% url 'book' book.id %}">{{ book.title }}</a>
+                            </div>
+                            <div id="status" style="padding-left: 15px;" data-id="{{ book.id }}">
+                                {% if book.status == "AVAILABLE" %}
+                                    STATUS: {{ book.status|title }}
+                                    {% if has_unpaid_fines or has_reached_maximum %}
+                                        <button class="btn btn-outline-secondary btn-sm btn-option btn-disabled">Borrow</button>
+                                    {% else %}
+                                        <button class="btn btn-info btn-sm btn-option">Borrow</a>
+                                    {% endif %}
+                                {% elif book.status == "BORROWED" %}
+                                    {% if book.id in borrowed %}
+                                        <i>You have borrowed this book.</i>
+                                    {% else %}
+                                        STATUS: {{ book.status|title }}
+                                        {% if has_unpaid_fines %}
+                                            <button class="btn btn-outline-secondary btn-sm btn-option btn-disabled">Reserve</a>
+                                        {% else %}
+                                            <button class="btn btn-info btn-sm btn-option">Reserve</a>
+                                        {% endif %}
+                                    {% endif %}
+                                {% elif book.status == "RESERVED" %}
+                                    {% if book.id in reserved %}
+                                        <i>You have reserved this book.</i>
+                                    {% else %}
+                                        STATUS: {{ book.status|title }}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>                        
+                    </div>
+                    <div class="card-body" style="padding-top: 15px; font-size: 14px;">
+                        <span style="font-weight: 600">Category: </span>{{ book.category }}<br>
+                        <span style="font-weight: 600">Authors: </span>{{ book.authors }}<br>
+                        <span style="font-weight: 600">Year of publication: </span>{{ book.published_date|date:"SHORT_DATE_FORMAT" }}<br>
+                        <div class="text" style="margin-top: 5px;">
+                            {{ book.description }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{% static 'library/index.js' %}">   
+    </script>
+
+{% endblock %}

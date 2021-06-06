@@ -1,0 +1,117 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="container" style="margin-bottom: 35px;">
+        
+        <div id="profile" data-enable="{{ profile_bool }}" style="margin-top: 20px; margin-bottom: 20px;">
+            <h4 class="display-4" style="font-size: 30px">{{ user.username }}</h4>
+            followers: <strong><span id="followers">{{ followers }}</span></strong><br>
+            following: <strong>{{ following }}</strong><br>
+            {% if me != user and me.is_authenticated %}
+            <form id="follow_form" style="margin-top: 10px;">
+                {% csrf_token %}
+                <button class="btn btn-outline-secondary btn-sm" style="width: 100px; box-shadow: none;" type="submit" id="follow" value="{{ user.username }}">
+                    {% if followed %} Unfollow {% else %} Follow {% endif %}
+                </button>
+            </form>
+            {% endif %}
+        </div>
+
+        <nav aria-label="pagination">
+            <form id="paginator" data-action="{{ action }}" method="GET">
+                <ul class="pagination">
+                    {% if current_page == 1 %}
+                        <li class="page-item disabled">
+                            <button class="page-link" name="page" style="box-shadow: none;" aria-disabled="true">Previous</button>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <button class="page-link" name="page" style="box-shadow: none;" value="{{ current_page|add:'-1' }}">Previous</button>
+                        </li>
+                    {% endif %}
+                    {% for i in num_pages %}
+                        {% if forloop.counter == current_page %}
+                            <li class="page-item active" aria-current="page">
+                                <button class="page-link" style="box-shadow: none;" name="page" value="{{ forloop.counter }}">
+                                    {{ forloop.counter }}
+                                </button>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <button class="page-link" style="box-shadow: none;" name="page" value="{{ forloop.counter }}">
+                                    {{ forloop.counter }}
+                                </button>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if current_page == num_pages|last|add:1 %}
+                        <li class="page-item disabled">
+                            <button class="page-link" name="page" style="box-shadow: none;" aria-disabled="true">Next</button>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <button class="page-link" name="page" style="box-shadow: none;" value="{{ current_page|add:1 }}">Next</button>
+                        </li>
+                    {% endif %}
+                </ul>
+            </form>
+        </nav>
+
+        {% if 'profile' in action and me.is_authenticated and me == user %}
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="card-body">
+                    <h4 class="display-4" style="font-size: 30px;">New Post</h4>
+                    <form id="new_post" data-user="{{ me.username }}">
+                        {% csrf_token %}
+                        <textarea id="new_textarea" class="form-control" style="width: 95%; min-height: 100px;"></textarea><br>
+                        <button class="btn btn-success btn-sm" style="width: 50px" type="submit">Post</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+
+        {% for post in posts %}
+            <div class="card" style="margin-bottom: 5px;">
+                <div class="card-body">
+                    <strong><a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a></strong><br>
+                    <div id="modes">
+                        <div id="normal_mode">
+                            {% if user == post.user and 'profile' not in action or me == post.user%}
+                                <button id="edit_btn" class="btn btn-info btn-sm" style="width: 50px; height: 20px; margin-top: 5px; margin-bottom: 5px; font-size: 10px; padding-top: 1.5px;">Edit</button><br>
+                            {% endif %}
+                            <div id="post_details">{{ post.details }}</div>
+                        </div>
+                        <div id="edit_mode">
+                            <form id="edit_post">
+                                {% csrf_token %}
+                                <button id="save_btn" class="btn btn-info btn-sm" style="width: 50px; height: 20px; margin-top: 5px; margin-bottom: 5px; font-size: 10px; padding-top: 1.5px;" value="{{ post.id }}" type="submit">Save</button><br>
+                                <textarea id="edit_textarea" class="form-control" style="width: 95%; min-height: 75px;">{{ post.details }}</textarea>
+                            </form>
+                        </div>
+                    </div>
+                    <small>{{ post.timestamp }}</small><br>
+                    {% if user == post.user and 'profile' not in action or me == post.user %}
+                        <img src="{% static 'network/heart_red.png' %}" width=17px>
+                    {% elif user.is_authenticated and 'profile' not in action or user.is_authenticated and me.is_authenticated %}
+                        <span id="like" style="cursor: pointer;" data-id="{{ post.id }}" data-auth="{{ user.is_authenticated }}">
+                            {% if post in likes %}
+                                <img id="red" src="{% static 'network/heart_red.png' %}" width=17px>
+                            {% else %}
+                                <img id="white" src="{% static 'network/heart_white.png' %}" width=17px>
+                            {% endif %}
+                        </span>
+                    {% else %}
+                        <img id="white" src="{% static 'network/heart_white.png' %}" width=17px>
+                    {% endif %}
+                    <span id="num_likes"> {{ post.likes }}</span>
+                </div>
+            </div>
+        {% endfor %}
+
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
+{% endblock %}
