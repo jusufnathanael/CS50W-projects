@@ -4,13 +4,9 @@ This web application is a library system that can manage book borrowing, returni
 
 
 
-### Distinctiveness
+### Distinctiveness and Complexity
 
 This app has different concept and model compared to CS50 Project 2 Commerce and CS50 Project 4 Network. Since this app primarily manages book borrowings and reservations within the library, it is clearly not a social network app nor an e-commerce site.
-
-
-
-### Complexity
 
 1. This app has three entities (User, Book, and Category) and 4 relations (Borrow, Reserve, Payment, and Review), which sum to a total of 7 models.
 2. The front-end utilizes Javascript and Bootstrap CSS to make the app more interactive and user-friendly.
